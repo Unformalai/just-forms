@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local wrangler / vite.
+# Do not commit .dev.vars.
+# In production: wrangler secret put ADMIN_PASSWORD
+
+ADMIN_PASSWORD=change-me
+
+# Optional Cloudflare Turnstile. Leave blank to skip.
+# TURNSTILE_SITE_KEY=
+# TURNSTILE_SECRET_KEY=
