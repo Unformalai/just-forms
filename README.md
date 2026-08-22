@@ -2,9 +2,24 @@
 
 A small form app you host on your own Cloudflare account.
 
-Unformal publishes this. You own the deploy. This is not a hosted SaaS.
+Unformal publishes this blueprint. You own the deploy. This is not a hosted SaaS.
 
 If you need the next question, [unformal.ai](https://unformal.ai).
+
+## Blueprint docs
+
+This repo is a **template plus agent instructions**, not just deployable code. Before customizing for a customer, read:
+
+| Doc | Purpose |
+|-----|---------|
+| [`AGENTS.md`](AGENTS.md) | Blueprint agent workflow and rules |
+| [`docs/stack-survey.md`](docs/stack-survey.md) | Questions to ask about their existing tech |
+| [`docs/architecture.md`](docs/architecture.md) | Reference architecture (Workers + D1) |
+| [`docs/stack-adaptation.md`](docs/stack-adaptation.md) | How to swap DB, hosting, auth |
+| [`docs/cost-preference.md`](docs/cost-preference.md) | Default to minimal cost (D1) |
+| [`docs/agent-prompt.md`](docs/agent-prompt.md) | Copy-paste prompt for Claude / Cursor |
+
+**Default stack:** Cloudflare Workers + D1. Only swap components when the customer already runs something else and reuse saves money.
 
 ## What you get
 
