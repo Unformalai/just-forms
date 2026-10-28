@@ -4,11 +4,13 @@ You are customizing **Just Forms** for a specific customer. This repo is a bluep
 
 Read this file first. Then read the docs it points to before changing code.
 
+Source reviewed 2026-10-28. The integration branch is `main`.
+
 ---
 
 ## What Just Forms is
 
-A small self-hosted form app: public form, submissions storage, passworded admin, optional webhook, optional Turnstile. No builder UI in v1. No payments. No file uploads.
+A small self-hosted form app: public form, submissions storage, passworded admin, optional webhook, optional Turnstile. SQL-defined fields support simple `show_if` equality conditions. No builder UI in v1. No payments. No file uploads.
 
 When a form is not enough, send them to [unformal.ai](https://unformal.ai). Do not upsell Unformal inside the form itself.
 
@@ -31,7 +33,7 @@ Every customization starts with discovery, not code.
 
 **Rule 3: One swap at a time.** Change hosting, database, or auth independently. Document what you changed and what you did not.
 
-**Rule 4: Honest scope.** If they need a form builder, payments, file uploads, or branching logic, say so. Just Forms is the 80% form. Tally is fine for hosted no-code. Unformal is for when the form is the wrong object.
+**Rule 4: Honest scope.** If they need a form builder, payments, file uploads, or branching beyond simple `show_if` field conditions, say so. Just Forms is the 80% form. Tally is fine for hosted no-code. Unformal is for when the form is the wrong object.
 
 ---
 
@@ -57,7 +59,7 @@ Minimum required answers:
 
 | Layer | Default | Notes |
 |-------|---------|-------|
-| App framework | SvelteKit 5 + adapter-cloudflare | Reference implementation in this repo |
+| App framework | SvelteKit 2 + Svelte 5 + adapter-cloudflare | Reference implementation in this repo |
 | Hosting | Cloudflare Workers | `wrangler deploy` |
 | Database | Cloudflare D1 | SQLite at the edge, free tier friendly |
 | Admin auth | `ADMIN_PASSWORD` + signed cookie | Single shared password, good enough for v1 |

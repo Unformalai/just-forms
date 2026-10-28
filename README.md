@@ -4,6 +4,8 @@ A small form app you host on your own Cloudflare account.
 
 Unformal publishes this blueprint. You own the deploy. This is not a hosted SaaS.
 
+Source reviewed 2026-10-28. The integration branch is `main`.
+
 If you need the next question, [unformal.ai](https://unformal.ai).
 
 ## Blueprint docs
@@ -24,9 +26,10 @@ This repo is a **template plus agent instructions**, not just deployable code. B
 ## What you get
 
 - Public form at `/f/:slug` (seeded example: `intake`)
+- SQL-defined text, email, textarea, choice and hidden fields, with simple `show_if` equality conditions
 - Submissions in D1
 - Thank you page
-- Passworded admin: forms, submissions, settings
+- Passworded admin: forms, submissions, settings, and CSV export
 - Optional webhook on submit
 - Optional Turnstile if you set the env vars
 
@@ -38,7 +41,7 @@ No payments. No file uploads. No builder. The 80 percent form.
 pnpm i
 npx wrangler d1 create just-forms
 # paste database_id into wrangler.jsonc
-npx wrangler d1 execute just-forms --file=schema.sql
+npx wrangler d1 execute just-forms --remote --file=schema.sql
 pnpm build && npx wrangler deploy
 ```
 
@@ -68,12 +71,12 @@ Open `/f/intake` and `/admin`. Default example password is in `.dev.vars.example
 
 ## Stack
 
-SvelteKit, adapter-cloudflare, D1, Wrangler. `workers_dev` is on because this is your app.
+SvelteKit 2, Svelte 5, adapter-cloudflare, D1, Wrangler. `workers_dev` is on because this is your app.
 
 ## Notes
 
 - `schema.sql` creates tables and seeds the `intake` form.
-- Webhook URL lives in the `settings` table. Empty means skip.
+- Webhook URL lives in the `settings` table. Empty means skip. Submission handling awaits the best-effort request before redirecting; there is no delivery queue or retry guarantee.
 - Turnstile is skipped when the secret is missing.
 - Change `ADMIN_PASSWORD` before you share the URL.
 

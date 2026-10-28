@@ -1,6 +1,6 @@
 # Architecture — Just Forms
 
-Reference architecture for the blueprint. This is what ships in the repo today. Adapt components only when the stack survey justifies it (see `stack-adaptation.md`).
+Reference architecture for the blueprint, reviewed against source on 2026-10-28. This describes the implementation, not a verified customer deployment. Adapt components only when the stack survey justifies it (see `stack-adaptation.md`).
 
 ---
 
@@ -31,7 +31,7 @@ Reference architecture for the blueprint. This is what ships in the repo today. 
 
 ### 1. Edge app (SvelteKit on Workers)
 
-Single Worker serves static assets and dynamic routes. `@sveltejs/adapter-cloudflare` builds to `.svelte-kit/cloudflare/`.
+SvelteKit 2 with Svelte 5 runs on a single Worker serving static assets and dynamic routes. `@sveltejs/adapter-cloudflare` builds to `.svelte-kit/cloudflare/`.
 
 | Route | Purpose |
 |-------|---------|
@@ -63,7 +63,10 @@ Schema and seed data: `schema.sql`. v1 has no migrations folder; apply changes w
 
 ### 3. Admin auth
 
-Shared password (`ADMIN_PASSWORD` wrangler secret). On login, server sets a SHA-256 signed cookie (`jf_admin`, 14-day TTL). No user accounts, no roles. Sufficient for a single-operator form admin.
+Shared password (`ADMIN_PASSWORD` Wrangler secret). On login, the server sets `jf_admin`
+with a SHA-256 digest derived from the password and a fixed payload. The browser cookie
+has a 14-day maximum age; the token itself carries no server-checked expiry. Rotating the
+password invalidates existing tokens. There are no user accounts or roles.
 
 ### 4. Spam protection (optional)
 
@@ -71,7 +74,10 @@ Cloudflare Turnstile. If `TURNSTILE_SECRET_KEY` is unset, verification is skippe
 
 ### 5. Integrations (optional)
 
-On successful submit, server POSTs JSON to `settings.webhook_url` if set. Fire-and-forget: webhook failures do not block the respondent. Use this to push into Slack, Zapier, n8n, or the customer's existing automation.
+After saving a submission, the server awaits a JSON POST to `settings.webhook_url` if set.
+Network exceptions are swallowed and the saved submission remains intact. This is best-effort
+delivery with no retry queue, HTTP-status check, or explicit timeout; a slow endpoint can
+delay the redirect. Use a compatible webhook consumer in the customer's existing automation.
 
 ---
 
@@ -79,10 +85,11 @@ On successful submit, server POSTs JSON to `settings.webhook_url` if set. Fire-a
 
 ```
 POST /api/submit
-  → validate fields (required, email format, show_if visibility)
+  → load form
   → optional Turnstile verify
+  → validate fields (required, email format, show_if visibility)
   → INSERT submissions + answers in D1
-  → optional webhook POST (async, errors swallowed)
+  → await optional webhook POST (network errors swallowed)
   → redirect to /thanks
 ```
 
@@ -98,7 +105,7 @@ No background queue. No email sender built in. If the customer needs email notif
 | File uploads | Storage + virus scan + CDN cost | R2 binding or external storage swap |
 | Payments | Stripe complexity | Separate blueprint or Unformal |
 | Multi-tenant SaaS | They host their own instance | One deploy per customer |
-| Branching logic | Only `show_if` conditionals | Unformal for real conversations |
+| Complex branching logic | Only `show_if` equality conditions | Unformal for real conversations |
 
 ---
 
